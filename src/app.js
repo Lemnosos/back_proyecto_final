@@ -1,0 +1,40 @@
+import express from 'express'
+import cors from 'cors'
+import morgan from 'morgan'
+import 'dotenv/config'
+import { fileURLToPath } from 'node:url'
+
+const URL_BASE = process.env.URL_BASE
+const puerto = process.env.PORT
+const origen = process.env.CORS_ORIGIN
+
+const app = express()
+const port = puerto || 3000
+
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(cors({ origin: origen }))
+app.use(morgan('dev'))
+
+
+
+import { router as authRoutes } from './routes/auth.routes.js'
+import { router as adminRoutes } from './routes/admin.routes.js'
+import { router as userRoutes } from './routes/user.routes.js'
+import { router as docsRoutes } from './docs/swagger.js'
+
+app.use('/', docsRoutes)
+app.use(`${URL_BASE}/public`, authRoutes)
+app.use(`${URL_BASE}/admin`, adminRoutes)
+app.use(`${URL_BASE}/users`, userRoutes)
+
+app.get('/health', (req, res) => res.json({ ok: true }))
+app.get(`${URL_BASE}/health`, (req, res) => res.json({ ok: true }))
+
+export { app }
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    app.listen(port, () => {
+        console.log(`Server on port ${port}`)
+    })
+}

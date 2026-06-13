@@ -1,0 +1,722 @@
+openapi: 3.0.0
+info:
+  title: Proyecto Final Backend
+  description: >
+    API del proyecto final. Los endpoints de Admin requieren rol `admin`
+    y los de Users requieren rol `user`. El token se obtiene via login
+    y se envía como `Authorization: Bearer <token>`.
+    Por cada request autenticado se devuelve un nuevo token en el header `x-token`.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local (Docker PostgreSQL)
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        id:        { type: integer, example: 1 }
+        nombre:    { type: string, example: "Admin Principal" }
+        apodo:     { type: string, nullable: true, example: "admin" }
+        email:     { type: string, example: "admin@test.com" }
+        rol:       { type: string, enum: [user, admin], example: "admin" }
+        created_at: { type: string, format: date-time }
+
+    Personaje:
+      type: object
+      properties:
+        id:           { type: integer, example: 1 }
+        usuario_id:   { type: integer, example: 2 }
+        nombre:       { type: string, example: "Guts" }
+        vida:         { type: integer, example: 120 }
+        ataque:       { type: integer, example: 85 }
+        defensa:      { type: integer, example: 70 }
+        velocidad:    { type: integer, example: 60 }
+        experiencia:  { type: integer, example: 450 }
+        created_at:   { type: string, format: date-time }
+
+    Enemigo:
+      type: object
+      properties:
+        id:        { type: integer, example: 1 }
+        nombre:    { type: string, example: "Goblin" }
+        vida:      { type: integer, example: 50 }
+        ataque:    { type: integer, example: 30 }
+        defensa:   { type: integer, example: 20 }
+        velocidad: { type: integer, example: 40 }
+        tipo:      { type: string, enum: [boss, normal], example: "normal" }
+
+    Combate:
+      type: object
+      properties:
+        id_pelea:      { type: integer, example: 1 }
+        id_personaje:  { type: integer, example: 1 }
+        id_enemigo:    { type: integer, example: 1 }
+        fecha:         { type: string, format: date-time }
+        resultado:     { type: string, enum: [victoria, derrota], example: "victoria" }
+        turnos:        { type: integer, example: 3 }
+
+    Error:
+      type: object
+      properties:
+        ok:    { type: boolean, example: false }
+        error: { type: string, example: "Enemigo no encontrado" }
+
+    ErrorValidacion:
+      type: object
+      properties:
+        ok:      { type: boolean, example: false }
+        error:   { type: string, example: "Error de validación" }
+        errores: { type: object }
+
+    ExitoMsg:
+      type: object
+      properties:
+        ok:   { type: boolean, example: true }
+        data: { type: object, properties: { msg: { type: string } } }
+
+    ExitoToken:
+      type: object
+      properties:
+        ok:   { type: boolean, example: true }
+        data: { type: object, properties: { msg: { type: string }, token: { type: string } } }
+
+  responses:
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: Token no enviado o inválido
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Acceso denegado (rol incorrecto o email duplicado)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ServerError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  parameters:
+    userIdPath:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer }
+      description: ID del usuario
+
+paths:
+  # ─── AUTH ────────────────────────────────────────────────────
+  /public/new:
+    post:
+      tags: [Auth]
+      summary: Registrar un nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nombre, email, password]
+              properties:
+                nombre:   { type: string, example: "Test" }
+                apodo:    { type: string, example: "tester" }
+                email:    { type: string, example: "test@test.com" }
+                password: { type: string, example: "123456" }
+      responses:
+        200:
+          description: Usuario creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExitoToken' }
+        403:
+          $ref: '#/components/responses/Forbidden'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  /public:
+    post:
+      tags: [Auth]
+      summary: Iniciar sesión
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:    { type: string, example: "admin@test.com" }
+                password: { type: string, example: "Admin1234" }
+      responses:
+        200:
+          description: Usuario logueado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExitoToken' }
+        403:
+          $ref: '#/components/responses/Forbidden'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  /public/renew:
+    get:
+      tags: [Auth]
+      summary: Renovar token JWT
+      security: [{ bearerAuth: [] }]
+      responses:
+        200:
+          description: Token renovado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExitoToken' }
+        400:
+          $ref: '#/components/responses/Unauthorized'
+
+  # ─── ADMIN - ENEMIGOS ─────────────────────────────────────────
+  /admin/enemigos:
+    get:
+      tags: [Admin - Enemigos]
+      summary: Listar enemigos (con ?id=X opcional para obtener uno)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: id
+          required: false
+          schema: { type: integer }
+          description: ID del enemigo (opcional)
+      responses:
+        200:
+          description: Lista de enemigos o enemigo específico
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      ok:   { type: boolean }
+                      data: { type: object, properties: { enemigos: { type: array, items: { $ref: '#/components/schemas/Enemigo' } } } }
+                  - type: object
+                    properties:
+                      ok:   { type: boolean }
+                      data: { type: object, properties: { enemigo: { $ref: '#/components/schemas/Enemigo' } } }
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Admin - Enemigos]
+      summary: Crear un nuevo enemigo
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nombre, vida, ataque, defensa, velocidad, tipo]
+              properties:
+                nombre:    { type: string, example: "Nuevo Enemigo" }
+                vida:      { type: integer, example: 100 }
+                ataque:    { type: integer, example: 50 }
+                defensa:   { type: integer, example: 40 }
+                velocidad: { type: integer, example: 30 }
+                tipo:      { type: string, enum: [boss, normal], example: "normal" }
+      responses:
+        201:
+          description: Enemigo creado
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+    patch:
+      tags: [Admin - Enemigos]
+      summary: Actualizar un enemigo
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id:        { type: integer, example: 1 }
+                nombre:    { type: string }
+                vida:      { type: integer }
+                ataque:    { type: integer }
+                defensa:   { type: integer }
+                velocidad: { type: integer }
+                tipo:      { type: string, enum: [boss, normal] }
+      responses:
+        200:
+          description: Enemigo actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:   { type: boolean }
+                  data: { type: object, properties: { enemigo: { $ref: '#/components/schemas/Enemigo' } } }
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+    delete:
+      tags: [Admin - Enemigos]
+      summary: Eliminar un enemigo
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id: { type: integer, example: 1 }
+      responses:
+        200:
+          description: Enemigo eliminado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExitoMsg' }
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  # ─── ADMIN - USUARIOS ─────────────────────────────────────────
+  /admin/usuarios:
+    get:
+      tags: [Admin - Usuarios]
+      summary: Listar todos los usuarios
+      security: [{ bearerAuth: [] }]
+      responses:
+        200:
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:   { type: boolean }
+                  data: { type: object, properties: { usuarios: { type: array, items: { $ref: '#/components/schemas/Usuario' } } } }
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/usuarios/{id}:
+    get:
+      tags: [Admin - Usuarios]
+      summary: Obtener un usuario por ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/userIdPath'
+      responses:
+        200:
+          description: Datos del usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:   { type: boolean }
+                  data: { type: object, properties: { usuario: { $ref: '#/components/schemas/Usuario' } } }
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+    patch:
+      tags: [Admin - Usuarios]
+      summary: Actualizar un usuario
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/userIdPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:   { type: string }
+                apodo:    { type: string }
+                email:    { type: string }
+                password: { type: string }
+      responses:
+        200:
+          description: Usuario actualizado
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+    delete:
+      tags: [Admin - Usuarios]
+      summary: Eliminar un usuario
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/userIdPath'
+      responses:
+        200:
+          $ref: '#/components/schemas/ExitoMsg'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  # ─── ADMIN - HISTORIAL ────────────────────────────────────────
+  /admin/historial:
+    get:
+      tags: [Admin - Historial]
+      summary: Obtener historial completo de peleas
+      security: [{ bearerAuth: [] }]
+      responses:
+        200:
+          description: Lista de combates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:   { type: boolean }
+                  data: { type: object, properties: { combates: { type: array, items: { $ref: '#/components/schemas/Combate' } } } }
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  # ─── ADMIN - NUEVO ADMIN ──────────────────────────────────────
+  /admin/nuevoAdmin:
+    post:
+      tags: [Admin - Gestión]
+      summary: Crear un nuevo administrador
+      description: Devuelve token del admin actual, no del nuevo.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nombre, email, password]
+              properties:
+                nombre:   { type: string, example: "Nuevo Admin" }
+                email:    { type: string, example: "nuevoadmin@test.com" }
+                password: { type: string, example: "admin123" }
+      responses:
+        201:
+          description: Administrador creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExitoToken' }
+        403:
+          $ref: '#/components/responses/Forbidden'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+
+  # ─── USER - PERSONAJE ─────────────────────────────────────────
+  /users/Personaje:
+    get:
+      tags: [User - Personaje]
+      summary: Obtener el personaje del usuario autenticado
+      security: [{ bearerAuth: [] }]
+      responses:
+        200:
+          description: Datos del personaje
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:   { type: boolean }
+                  data: { type: object, properties: { personaje: { $ref: '#/components/schemas/Personaje' } } }
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+    put:
+      tags: [User - Personaje]
+      summary: Crear un personaje para el usuario autenticado (1 por usuario)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nombre, vida, ataque, defensa, velocidad, experiencia]
+              properties:
+                nombre:       { type: string, example: "Mi Personaje" }
+                vida:         { type: integer, example: 100 }
+                ataque:       { type: integer, example: 80 }
+                defensa:      { type: integer, example: 60 }
+                velocidad:    { type: integer, example: 70 }
+                experiencia:  { type: integer, example: 0 }
+      responses:
+        201:
+          description: Personaje creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:   { type: boolean }
+                  data: { type: object, properties: { personaje: { $ref: '#/components/schemas/Personaje' } } }
+        403:
+          $ref: '#/components/responses/Forbidden'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+
+    patch:
+      tags: [User - Personaje]
+      summary: Actualizar personaje
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id:           { type: integer, example: 1 }
+                nombre:       { type: string }
+                vida:         { type: integer }
+                ataque:       { type: integer }
+                defensa:      { type: integer }
+                velocidad:    { type: integer }
+                experiencia:  { type: integer }
+      responses:
+        200:
+          description: Personaje actualizado
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+    delete:
+      tags: [User - Personaje]
+      summary: Eliminar personaje
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id: { type: integer, example: 1 }
+      responses:
+        200:
+          $ref: '#/components/schemas/ExitoMsg'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  # ─── USER - USUARIO ───────────────────────────────────────────
+  /users/usuarios:
+    get:
+      tags: [User - Usuario]
+      summary: Obtener los datos propios del usuario autenticado
+      security: [{ bearerAuth: [] }]
+      responses:
+        200:
+          description: Datos del usuario (sin contraseña)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:   { type: boolean }
+                  data: { type: object, properties: { usuario: { $ref: '#/components/schemas/Usuario' } } }
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/usuarios/{id}:
+    patch:
+      tags: [User - Usuario]
+      summary: Actualizar los datos del usuario
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/userIdPath'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:   { type: string }
+                apodo:    { type: string }
+                email:    { type: string }
+                password: { type: string }
+      responses:
+        200:
+          description: Usuario actualizado
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+    delete:
+      tags: [User - Usuario]
+      summary: Eliminar el usuario
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/userIdPath'
+      responses:
+        200:
+          $ref: '#/components/schemas/ExitoMsg'
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  # ─── HEALTH ─────────────────────────────────────────
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check (sin prefijo)
+      responses:
+        200:
+          description: Server OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+
+  /api/v1/health:
+    get:
+      tags: [Health]
+      summary: Health check (con prefijo /api/v1)
+      responses:
+        200:
+          description: Server OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+
+  # ─── USER - HISTORIAL ─────────────────────────────────────────
+  /users/historial:
+    get:
+      tags: [User - Combates]
+      summary: Obtener el historial de combates del personaje del usuario
+      security: [{ bearerAuth: [] }]
+      responses:
+        200:
+          description: Lista de combates del personaje
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:   { type: boolean }
+                  data: { type: object, properties: { combates: { type: array, items: { $ref: '#/components/schemas/Combate' } } } }
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+    put:
+      tags: [User - Combates]
+      summary: Guardar el resultado de un combate
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id_personaje, id_enemigo, resultado, turnos]
+              properties:
+                id_personaje: { type: integer, example: 1 }
+                id_enemigo:   { type: integer, example: 1 }
+                resultado:    { type: string, enum: [victoria, derrota], example: "victoria" }
+                turnos:       { type: integer, example: 5 }
+      responses:
+        201:
+          description: Resultado guardado
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+  # ─── USER - ENEMIGO ALEATORIO ─────────────────────────────────
+  /users/enemigo:
+    get:
+      tags: [User - Combates]
+      summary: Obtener un enemigo aleatorio para combatir
+      security: [{ bearerAuth: [] }]
+      responses:
+        200:
+          description: Enemigo aleatorio
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:   { type: boolean }
+                  data: { type: object, properties: { enemigo: { $ref: '#/components/schemas/Enemigo' } } }
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
