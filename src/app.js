@@ -1,8 +1,8 @@
 import express from 'express'
 import cors from 'cors'
-import morgan from 'morgan'
 import 'dotenv/config'
 import { fileURLToPath } from 'node:url'
+import { capturarBody, morganLogger } from './utils/morganConfig.js'
 
 const URL_BASE = process.env.URL_BASE
 const puerto = process.env.PORT
@@ -14,7 +14,8 @@ const port = puerto || 3000
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cors({ origin: origen }))
-app.use(morgan('dev'))
+app.use(capturarBody)
+app.use(morganLogger)
 
 
 
