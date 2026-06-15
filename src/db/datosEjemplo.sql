@@ -1,8 +1,8 @@
--- Usuarios (contraseñas ya hasheadas con bcryptjs)
+-- Usuarios (contraseñas hasheadas con bcryptjs, generadas con seed.js)
 INSERT INTO usuario (nombre, apodo, email, password, rol) VALUES
-  ('Admin Principal', 'admin',    'admin@test.com',    'Admin1234',    'admin'),
-  ('Jugador Uno',     'jugon',    'jugador@test.com',  'Jugador1234',  'user'),
-  ('Jugador Dos',     'pro-player', 'pro@test.com',   'ProPlayer1234', 'user');
+  ('Admin Principal', 'admin',    'admin@test.com',    '$2b$12$UMVTGDM2TZtqVvs8nbl.8.U/3hmPq5zllDs2OKdeRHB4kslZ1ZY3W', 'admin'),
+  ('Jugador Uno',     'jugon',    'jugador@test.com',  '$2b$12$UMVTGDM2TZtqVvs8nbl.8.EUiellDX/cuJ8sKcq1V67v7hbe5Mn1y', 'user'),
+  ('Jugador Dos',     'pro-player', 'pro@test.com',   '$2b$12$UMVTGDM2TZtqVvs8nbl.8.z4e1isYvWn9G6VjUHNxVUhpmF391hRO', 'user');
 
 -- Personajes
 INSERT INTO personaje (usuario_id, nombre, vida, ataque, defensa, velocidad, experiencia) VALUES

@@ -11,5 +11,6 @@ export const pool = new Pool({
     host: process.env.SQL_HOST,
     database: process.env.SQL_DB,
     password: process.env.SQL_PASS,
-    port: process.env.SQL_PORT
+    port: Number(process.env.SQL_PORT),
+    ssl: { rejectUnauthorized: false }
 });
