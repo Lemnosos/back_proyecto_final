@@ -1,0 +1,400 @@
+{
+	"info": {
+		"name": "Proyecto Final Backend - Render",
+		"description": "Colección para probar endpoints en Render: https://back-proyecto-final-v37n.onrender.com",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth (Público)",
+			"item": [
+				{
+					"name": "Registrar usuario",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Nuevo Usuario\",\n  \"apodo\": \"player\",\n  \"email\": \"nuevo@test.com\",\n  \"password\": \"Test1234\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/public/new",
+							"host": ["{{base_url}}"],
+							"path": ["public", "new"]
+						}
+					}
+				},
+				{
+					"name": "Iniciar sesión (admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.collectionVariables.set('token', pm.response.json().data.token);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"Admin1234\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/public",
+							"host": ["{{base_url}}"],
+							"path": ["public"]
+						}
+					}
+				},
+				{
+					"name": "Iniciar sesión (user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.collectionVariables.set('token', pm.response.json().data.token);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"jugador@test.com\",\n  \"password\": \"Jugador1234\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/public",
+							"host": ["{{base_url}}"],
+							"path": ["public"]
+						}
+					}
+				},
+				{
+					"name": "Renovar token",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+						"url": {
+							"raw": "{{base_url}}/public/renew",
+							"host": ["{{base_url}}"],
+							"path": ["public", "renew"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Enemigos",
+					"item": [
+						{
+							"name": "Listar enemigos",
+							"request": {
+								"method": "GET",
+								"header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+								"url": {
+									"raw": "{{base_url}}/admin/enemigos",
+									"host": ["{{base_url}}"],
+									"path": ["admin", "enemigos"]
+								}
+							}
+						},
+						{
+							"name": "Obtener enemigo por ID",
+							"request": {
+								"method": "GET",
+								"header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+								"url": {
+									"raw": "{{base_url}}/admin/enemigos?id=1",
+									"host": ["{{base_url}}"],
+									"path": ["admin", "enemigos"],
+									"query": [{ "key": "id", "value": "1" }]
+								}
+							}
+						},
+						{
+							"name": "Crear enemigo",
+							"request": {
+								"method": "POST",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nombre\": \"Orco\",\n  \"vida\": 80,\n  \"ataque\": 50,\n  \"defensa\": 40,\n  \"velocidad\": 30,\n  \"tipo\": \"normal\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/enemigos",
+									"host": ["{{base_url}}"],
+									"path": ["admin", "enemigos"]
+								}
+							}
+						},
+						{
+							"name": "Actualizar enemigo",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": 1,\n  \"nombre\": \"Goblin Dorado\",\n  \"vida\": 60\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/enemigos",
+									"host": ["{{base_url}}"],
+									"path": ["admin", "enemigos"]
+								}
+							}
+						},
+						{
+							"name": "Eliminar enemigo",
+							"request": {
+								"method": "DELETE",
+								"header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": 99\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/enemigos",
+									"host": ["{{base_url}}"],
+									"path": ["admin", "enemigos"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Usuarios",
+					"item": [
+						{
+							"name": "Listar usuarios",
+							"request": {
+								"method": "GET",
+								"header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+								"url": {
+									"raw": "{{base_url}}/admin/usuarios",
+									"host": ["{{base_url}}"],
+									"path": ["admin", "usuarios"]
+								}
+							}
+						},
+						{
+							"name": "Obtener usuario por ID",
+							"request": {
+								"method": "GET",
+								"header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+								"url": {
+									"raw": "{{base_url}}/admin/usuarios/1",
+									"host": ["{{base_url}}"],
+									"path": ["admin", "usuarios", "1"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Historial de peleas",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+						"url": {
+							"raw": "{{base_url}}/admin/historial",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "historial"]
+						}
+					}
+				},
+				{
+					"name": "Crear nuevo admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Admin2\",\n  \"email\": \"admin2@test.com\",\n  \"password\": \"Admin5678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/nuevoAdmin",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "nuevoAdmin"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Personaje",
+					"item": [
+						{
+							"name": "Obtener personaje",
+							"request": {
+								"method": "GET",
+								"header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+								"url": {
+									"raw": "{{base_url}}/users/Personaje",
+									"host": ["{{base_url}}"],
+									"path": ["users", "Personaje"]
+								}
+							}
+						},
+						{
+							"name": "Crear personaje",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nombre\": \"Aragorn\",\n  \"vida\": 100,\n  \"ataque\": 70,\n  \"defensa\": 60,\n  \"velocidad\": 50,\n  \"experiencia\": 0\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/users/Personaje",
+									"host": ["{{base_url}}"],
+									"path": ["users", "Personaje"]
+								}
+							}
+						},
+						{
+							"name": "Actualizar personaje",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nombre\": \"Aragorn Renacido\",\n  \"vida\": 150\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/users/Personaje",
+									"host": ["{{base_url}}"],
+									"path": ["users", "Personaje"]
+								}
+							}
+						},
+						{
+							"name": "Eliminar personaje",
+							"request": {
+								"method": "DELETE",
+								"header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": 99\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/users/Personaje",
+									"host": ["{{base_url}}"],
+									"path": ["users", "Personaje"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Usuario",
+					"item": [
+						{
+							"name": "Obtener mis datos",
+							"request": {
+								"method": "GET",
+								"header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+								"url": {
+									"raw": "{{base_url}}/users/usuarios",
+									"host": ["{{base_url}}"],
+									"path": ["users", "usuarios"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Combates",
+					"item": [
+						{
+							"name": "Obtener historial",
+							"request": {
+								"method": "GET",
+								"header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+								"url": {
+									"raw": "{{base_url}}/users/historial",
+									"host": ["{{base_url}}"],
+									"path": ["users", "historial"]
+								}
+							}
+						},
+						{
+							"name": "Guardar resultado combate",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id_personaje\": 1,\n  \"id_enemigo\": 1,\n  \"resultado\": \"victoria\",\n  \"turnos\": 5\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/users/historial",
+									"host": ["{{base_url}}"],
+									"path": ["users", "historial"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Obtener enemigo aleatorio",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+						"url": {
+							"raw": "{{base_url}}/users/enemigo",
+							"host": ["{{base_url}}"],
+							"path": ["users", "enemigo"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://back-proyecto-final-v37n.onrender.com/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
