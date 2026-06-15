@@ -1,7 +1,6 @@
 import express from 'express'
 import cors from 'cors'
 import 'dotenv/config'
-import { fileURLToPath } from 'node:url'
 import { capturarBody, morganLogger } from './utils/morganConfig.js'
 
 const URL_BASE = process.env.URL_BASE
@@ -32,10 +31,8 @@ app.use(`${URL_BASE}/users`, userRoutes)
 app.get('/health', (req, res) => res.json({ ok: true }))
 app.get(`${URL_BASE}/health`, (req, res) => res.json({ ok: true }))
 
-export { app }
+app.listen(port, () => {
+    console.log(`Server on port ${port}`)
+})
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-    app.listen(port, () => {
-        console.log(`Server on port ${port}`)
-    })
-}
+export { app }
