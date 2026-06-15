@@ -35,4 +35,13 @@ app.listen(port, () => {
     console.log(`Server on port ${port}`)
 })
 
+
+/*
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    app.listen(port, () => {
+        console.log(`Server on port ${port}`)
+    })
+}
+*/
+
 export { app }

@@ -56,41 +56,83 @@ export function buildUpdateQuery(tabla, id, body) {
 }
 
 /** @type {string} Busca usuario por email */
-export const obtenerUsuarioPorEmail = "SELECT * FROM usuario WHERE email = $1";
+export const obtenerUsuarioPorEmail = `SELECT *
+FROM usuario
+WHERE email = $1`;
 /** @type {string} Busca usuario por ID */
-export const obtenerUsuarioPorId = "SELECT * FROM usuario WHERE id = $1";
+export const obtenerUsuarioPorId = `SELECT *
+FROM usuario
+WHERE id = $1`;
 /** @type {string} Inserta un nuevo usuario */
-export const crearUsuario = "INSERT INTO usuario (nombre, apodo, email, password, rol) VALUES ($1, $2, $3, $4, $5) RETURNING *";
+export const crearUsuario = `INSERT INTO usuario (nombre, apodo, email, password, rol)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING *`;
 /** @type {string} Obtiene todos los usuarios ordenados por ID */
-export const obtenerTodosUsuarios = "SELECT * FROM usuario ORDER BY id ASC";
+export const obtenerTodosUsuarios = `SELECT *
+FROM usuario
+ORDER BY id ASC`;
 /** @type {string} Elimina un usuario por ID */
-export const borrarUsuario = "DELETE FROM usuario WHERE id = $1 RETURNING *";
+export const borrarUsuario = `DELETE
+FROM usuario
+WHERE id = $1
+RETURNING *`;
 
 /** @type {string} Busca personaje por ID de usuario */
-export const obtenerPersonajePorUsuarioId = "SELECT * FROM personaje WHERE usuario_id = $1";
+export const obtenerPersonajePorUsuarioId = `SELECT *
+FROM personaje
+WHERE usuario_id = $1`;
 /** @type {string} Busca personaje por ID */
-export const obtenerPersonajePorId = "SELECT * FROM personaje WHERE id = $1";
+export const obtenerPersonajePorId = `SELECT *
+FROM personaje
+WHERE id = $1`;
 /** @type {string} Inserta un nuevo personaje */
-export const crearPersonaje = "INSERT INTO personaje (usuario_id, nombre, vida, ataque, defensa, velocidad, experiencia) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *";
+export const crearPersonaje = `INSERT INTO personaje (usuario_id, nombre, vida, ataque, defensa, velocidad, experiencia)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING *`;
 /** @type {string} Elimina un personaje por ID */
-export const borrarPersonaje = "DELETE FROM personaje WHERE id = $1 RETURNING *";
+export const borrarPersonaje = `DELETE
+FROM personaje
+WHERE id = $1
+RETURNING *`;
 
 /** @type {string} Obtiene todos los enemigos ordenados por ID */
-export const obtenerTodosEnemigos = "SELECT * FROM enemigo ORDER BY id ASC";
+export const obtenerTodosEnemigos = `SELECT *
+FROM enemigo
+ORDER BY id ASC`;
 /** @type {string} Busca enemigo por ID */
-export const obtenerEnemigoPorId = "SELECT * FROM enemigo WHERE id = $1";
+export const obtenerEnemigoPorId = `SELECT *
+FROM enemigo
+WHERE id = $1`;
 /** @type {string} Inserta un nuevo enemigo */
-export const crearEnemigo = "INSERT INTO enemigo (nombre, vida, ataque, defensa, velocidad, tipo) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *";
+export const crearEnemigo = `INSERT INTO enemigo (nombre, vida, ataque, defensa, velocidad, tipo)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING *`;
 /** @type {string} Elimina un enemigo por ID */
-export const borrarEnemigo = "DELETE FROM enemigo WHERE id = $1 RETURNING *";
+export const borrarEnemigo = `DELETE
+FROM enemigo
+WHERE id = $1
+RETURNING *`;
 
 /** @type {string} Inserta un nuevo combate */
-export const crearCombate = "INSERT INTO combate (id_personaje, id_enemigo, resultado, turnos) VALUES ($1, $2, $3, $4) RETURNING *";
+export const crearCombate = `INSERT INTO combate (id_personaje, id_enemigo, resultado, turnos)
+VALUES ($1, $2, $3, $4)
+RETURNING *`;
 /** @type {string} Obtiene combates de un personaje ordenados por fecha descendente */
-export const obtenerCombatesPorPersonaje = "SELECT * FROM combate WHERE id_personaje = $1 ORDER BY fecha DESC";
+export const obtenerCombatesPorPersonaje = `SELECT c.*, e.nombre AS nombre_enemigo
+FROM combate c
+JOIN enemigo e ON c.id_enemigo = e.id
+where c.id_personaje=$1`;
+
 /** @type {string} Obtiene todos los combates ordenados por fecha descendente */
-export const obtenerTodosCombates = "SELECT * FROM combate ORDER BY fecha DESC";
+export const obtenerTodosCombates = `SELECT *
+FROM combate
+ORDER BY fecha DESC`;
 /** @type {string} Busca combate por ID de pelea */
-export const obtenerCombatePorId = "SELECT * FROM combate WHERE id_pelea = $1";
+export const obtenerCombatePorId = `SELECT *
+FROM combate
+WHERE id_pelea = $1`;
 /** @type {string} Elimina un combate por ID de pelea */
-export const borrarCombate = "DELETE FROM combate WHERE id_pelea = $1 RETURNING *";
+export const borrarCombate = `DELETE
+FROM combate
+WHERE id_pelea = $1
+RETURNING *`;
