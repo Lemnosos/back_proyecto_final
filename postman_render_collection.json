@@ -6,6 +6,35 @@
 	},
 	"item": [
 		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health (raíz)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://back-proyecto-final-v37n.onrender.com/health",
+							"host": ["https://back-proyecto-final-v37n.onrender.com"],
+							"path": ["health"]
+						}
+					}
+				},
+				{
+					"name": "Health (api/v1)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						}
+					}
+				}
+			]
+		},
+		{
 			"name": "Auth (Público)",
 			"item": [
 				{
