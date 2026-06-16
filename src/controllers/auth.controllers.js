@@ -2,6 +2,13 @@ import { encriptarContraseña, compararContraseña } from '../utils/gestionarCon
 import { generarToken } from '../utils/gestionarTokens.js'
 import { getUserByEmail, createUser as createUserModel } from '../models/user.model.js'
 
+const COOKIE_OPTS = {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: false,
+    maxAge: 1000 * 60 * 60 * 24
+}
+
 /**
  * Controlador para registrar un nuevo usuario.
  * @param {import('express').Request} req
@@ -22,13 +29,12 @@ export const createUser = async (req, res) => {
 
         data = await createUserModel(req.body)
 
-        console.log("usuario despues de la creacion", data)
-
         const token = await generarToken({ id: data.id, rol: 'user' })
+        res.cookie('token', token, COOKIE_OPTS)
 
         return res.status(200).json({
             ok: true,
-            data: { msg: 'Creando usuario', token }
+            data: { msg: 'Creando usuario', id: data.id, role: 'user' }
         });
 
     } catch (error) {
@@ -67,10 +73,11 @@ export const loginUser = async (req, res) => {
         }
 
         const token = await generarToken({ id: data.id, rol: data.rol || 'user' });
+        res.cookie('token', token, COOKIE_OPTS)
 
         return res.status(200).json({
             ok: true,
-            data: { msg: 'Logueando usuario', token }
+            data: { msg: 'Logueando usuario', id: data.id, role: data.rol || 'user' }
         });
 
     } catch (error) {
@@ -91,9 +98,25 @@ export const loginUser = async (req, res) => {
 export const renewToken = async (req, res) => {
 
     const nuevoToken = await generarToken({ id: req.id, rol: req.rol })
+    res.cookie('token', nuevoToken, COOKIE_OPTS)
 
     return res.status(200).json({
         ok: true,
-        data: { msg: 'Renovando token', nuevoToken }
+        data: { msg: 'Token renovado', id: req.id, role: req.rol }
+    });
+}
+
+/**
+ * Controlador para cerrar sesión.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+export const logoutUser = async (req, res) => {
+
+    res.clearCookie('token', { httpOnly: true, sameSite: 'lax', secure: false })
+
+    return res.status(200).json({
+        ok: true,
+        data: { msg: 'Sesión cerrada' }
     });
 }

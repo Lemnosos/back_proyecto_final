@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import 'dotenv/config'
 import { capturarBody, morganLogger } from './utils/morganConfig.js'
 
@@ -12,7 +13,8 @@ const port = puerto || 3000
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-app.use(cors({ origin: origen }))
+app.use(cookieParser())
+app.use(cors({ origin: origen, credentials: true }))
 app.use(capturarBody)
 app.use(morganLogger)
 

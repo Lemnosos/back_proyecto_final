@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import { createUser, loginUser, renewToken } from '../controllers/auth.controllers.js';
+import { createUser, loginUser, renewToken, logoutUser } from '../controllers/auth.controllers.js';
 import { validarToken } from '../middlewares/validateTokens.js';
 import { validateInputs } from '../middlewares/validateImputs.js';
 
@@ -20,5 +20,7 @@ router.post('/', [
 ], loginUser)
 
 router.get('/renew', validarToken, renewToken)
+
+router.post('/logout', logoutUser)
 
 export { router }

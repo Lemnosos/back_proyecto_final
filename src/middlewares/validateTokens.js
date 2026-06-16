@@ -1,15 +1,21 @@
 import { comprobarToken, generarToken } from "../utils/gestionarTokens.js"
 
+const COOKIE_OPTS = {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: false,
+    maxAge: 1000 * 60 * 60 //la cookie dura 1 hora
+}
+
 /**
- * Middleware que valida el token JWT, extrae el payload (id, rol) y genera un nuevo token.
- * El nuevo token se envía en el header `x-token` (refresh automático).
+ * Middleware que valida el token JWT desde la cookie, extrae el payload (id, rol) y renueva el token.
  * @param {import('express').Request} req
  * @param {import('express').Response} res
  * @param {import('express').NextFunction} next
  */
 export const validarToken = async (req, res, next) => {
     try {
-        const token = req.header("Authorization")?.split(" ")[1] || ""
+        const token = req.cookies?.token
 
         if (!token) {
             return res.status(400).json({
@@ -23,7 +29,7 @@ export const validarToken = async (req, res, next) => {
         req.rol = payload.rol
 
         const nuevoToken = await generarToken({ id: payload.id, rol: payload.rol })
-        res.setHeader('x-token', nuevoToken)
+        res.cookie('token', nuevoToken, COOKIE_OPTS)
 
         next()
 
