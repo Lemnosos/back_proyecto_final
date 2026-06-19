@@ -8,7 +8,7 @@ API REST del proyecto final del bootcamp. Backend para un juego de combates por 
 
 - **Runtime:** Node.js 18+ con ES Modules (`"type": "module"`)
 - **Framework:** Express
-- **Base de datos:** PostgreSQL (Docker)
+- **Base de datos:** PostgreSQL (Render o Docker local)
 - **Autenticación:** JWT (jsonwebtoken) + bcryptjs
 - **Validaciones:** express-validator
 - **Logs:** Morgan
@@ -70,7 +70,7 @@ El servidor arranca en `http://localhost:3000`.
 | `SQL_DB`        | Nombre de la base de datos    | `proyecto_final`                                     |
 | `BCRYPTJSC_INT` | Salt rounds para bcrypt       | `10`                                                 |
 | `SECRET_KEY`    | Clave secreta para firmar JWT | Generar con `crypto.randomBytes(64).toString('hex')` |
-| `CORS_ORIGIN`   | Origen permitido para CORS    | `http://localhost:5173`                              |
+| `CORS_ORIGIN`   | Orígenes permitidos para CORS (separados por coma) | `http://localhost:5173`                              |
 
 ---
 
@@ -100,10 +100,12 @@ src/
 │   ├── sqlConect.js           #   Pool compartido de PostgreSQL
 │   ├── queries.js             #   Consultas SQL + buildUpdateQuery()
 │   ├── gestionarTokens.js     #   Generar y verificar JWT
-│   └── gestionarContraseñas.js #   Hash y comparación con bcrypt
+│   ├── gestionarContraseñas.js #   Hash y comparación con bcrypt
+│   └── morganConfig.js        #   Configuración de logs (Morgan)
 ├── db/
 │   ├── init.sql               #   Esquema de tablas
-│   └── seed.js                #   Datos de ejemplo
+│   ├── datosEjemplo.sql       #   Datos de ejemplo en SQL (con hashes)
+│   └── seed.js                #   Datos de ejemplo (vía Node)
 ├── docs/
 │   ├── openapi.yaml           #   Especificación OpenAPI 3.0
 │   └── swagger.js             #   Carga y sirve Swagger UI
@@ -119,11 +121,12 @@ src/
 ## Endpoints de la API
 
 ### Auth (`/api/v1/public`)
-| Método | Ruta            | Descripción             | Auth |
-| ------ | --------------- | ----------------------- | ---- |
-| POST   | `/public/new`   | Registrar nuevo usuario | No   |
-| POST   | `/public`       | Iniciar sesión          | No   |
-| GET    | `/public/renew` | Renovar token           | JWT  |
+| Método | Ruta              | Descripción             | Auth |
+| ------ | ----------------- | ----------------------- | ---- |
+| POST   | `/public/new`     | Registrar nuevo usuario | No   |
+| POST   | `/public`         | Iniciar sesión          | No   |
+| GET    | `/public/renew`   | Renovar token           | JWT  |
+| POST   | `/public/logout`  | Cerrar sesión           | No   |
 
 ### Admin (`/api/v1/admin`)
 | Método | Ruta                  | Descripción                            |
@@ -137,7 +140,6 @@ src/
 | PATCH  | `/admin/usuarios/:id` | Actualizar usuario                     |
 | DELETE | `/admin/usuarios/:id` | Eliminar usuario                       |
 | GET    | `/admin/historial`    | Historial completo de peleas           |
-| POST   | `/admin/nuevoAdmin`   | Crear nuevo administrador              |
 
 ### User (`/api/v1/users`)
 | Método | Ruta                  | Descripción                     |
@@ -156,16 +158,17 @@ src/
 ### Health
 | Método | Ruta             | Descripción  |
 | ------ | ---------------- | ------------ |
+| GET    | `/health`        | Health check |
 | GET    | `/api/v1/health` | Health check |
 
 ---
 
 ## Autenticación
 
-- **Registro:** `POST /api/v1/public/new` → devuelve un JWT.
-- **Login:** `POST /api/v1/public` → devuelve un JWT válido por 1 hora.
-- **Uso:** Enviar el token en el header `Authorization: Bearer <token>`.
-- **Auto-refresh:** Cada respuesta de un endpoint autenticado incluye un nuevo token en el header `x-token`. El frontend debe recogerlo y reemplazar el token actual.
+- **Registro:** `POST /api/v1/public/new` → guarda el JWT en una cookie httpOnly.
+- **Login:** `POST /api/v1/public` → guarda el JWT en una cookie httpOnly (válido 24h).
+- **Logout:** `POST /api/v1/public/logout` → elimina la cookie.
+- **Auto-refresh:** Cada petición autenticada renueva el token automáticamente (middleware `validarToken`). El frontend solo necesita enviar `credentials: 'include'` en fetch.
 - **Roles:** `admin` (gestión completa) y `user` (solo sus propios datos). Controlado por middleware `validarRol()`.
 
 ### Usuarios de prueba (seed)

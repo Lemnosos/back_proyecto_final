@@ -2,9 +2,9 @@ import { comprobarToken, generarToken } from "../utils/gestionarTokens.js"
 
 const COOKIE_OPTS = {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: false,
-    maxAge: 1000 * 60 * 60 //la cookie dura 1 hora
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 1000 * 60 * 60 * 24
 }
 
 /**

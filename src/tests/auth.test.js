@@ -22,7 +22,7 @@ describe('Auth - POST /public/new', () => {
 
     expect(res.status).toBe(200)
     expect(res.body.ok).toBe(true)
-    expect(res.body.data.token).toBeDefined()
+    expect(res.headers['set-cookie']).toBeDefined()
     tempUser = { id: res.body.data.id, email: tempEmail }
   })
 
@@ -46,7 +46,7 @@ describe('Auth - POST /public', () => {
 
     expect(res.status).toBe(200)
     expect(res.body.ok).toBe(true)
-    expect(res.body.data.token).toBeDefined()
+    expect(res.headers['set-cookie']).toBeDefined()
   })
 
   it('debería dar 403 con contraseña incorrecta', async () => {
@@ -66,7 +66,7 @@ describe('Auth - GET /public/renew', () => {
 
     const res = await request(app)
       .get(`${ENDPOINT}/renew`)
-      .set('Authorization', `Bearer ${token}`)
+      .set('Cookie', `token=${token}`)
 
     expect(res.status).toBe(200)
     expect(res.body.ok).toBe(true)

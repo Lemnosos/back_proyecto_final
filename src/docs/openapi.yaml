@@ -187,6 +187,22 @@ paths:
         400:
           $ref: '#/components/responses/Unauthorized'
 
+  /public/logout:
+    post:
+      tags: [Auth]
+      summary: Cerrar sesión
+      description: Elimina la cookie de autenticación.
+      responses:
+        200:
+          description: Sesión cerrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:   { type: boolean }
+                  data: { type: object, properties: { msg: { type: string } } }
+
   # ─── ADMIN - ENEMIGOS ─────────────────────────────────────────
   /admin/enemigos:
     get:
@@ -418,35 +434,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         403:
           $ref: '#/components/responses/Forbidden'
-
-  # ─── ADMIN - NUEVO ADMIN ──────────────────────────────────────
-  /admin/nuevoAdmin:
-    post:
-      tags: [Admin - Gestión]
-      summary: Crear un nuevo administrador
-      description: Devuelve token del admin actual, no del nuevo.
-      security: [{ bearerAuth: [] }]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [nombre, email, password]
-              properties:
-                nombre:   { type: string, example: "Nuevo Admin" }
-                email:    { type: string, example: "nuevoadmin@test.com" }
-                password: { type: string, example: "admin123" }
-      responses:
-        201:
-          description: Administrador creado
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/ExitoToken' }
-        403:
-          $ref: '#/components/responses/Forbidden'
-        400:
-          $ref: '#/components/responses/Unauthorized'
 
   # ─── USER - PERSONAJE ─────────────────────────────────────────
   /users/Personaje:

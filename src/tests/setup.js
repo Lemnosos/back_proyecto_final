@@ -20,7 +20,11 @@ export async function getToken(rol = 'admin') {
     .post(`${URL_BASE}/public`)
     .send(creds)
 
-  return res.body.data.token
+  const cookieHeader = res.headers['set-cookie']?.[0]
+  if (!cookieHeader) throw new Error('No se recibió cookie de token')
+  const match = cookieHeader.match(/token=([^;]+)/)
+  if (!match) throw new Error('No se pudo extraer el token de la cookie')
+  return match[1]
 }
 
 /**
