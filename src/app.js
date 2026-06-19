@@ -7,9 +7,7 @@ import { capturarBody, morganLogger } from './utils/morganConfig.js'
 const URL_BASE = process.env.URL_BASE
 const puerto = process.env.PORT
 
-const origenes = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-    : '*'
+const originFrontend = process.env.CORS_ORIGIN
 
 const app = express()
 const port = puerto || 3000
@@ -17,11 +15,14 @@ const port = puerto || 3000
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors({ origin: origenes, credentials: true }))
+
+app.use(cors({
+    origin: originFrontend,
+    credentials: true
+}))
+
 app.use(capturarBody)
 app.use(morganLogger)
-
-
 
 import { router as authRoutes } from './routes/auth.routes.js'
 import { router as adminRoutes } from './routes/admin.routes.js'
@@ -39,14 +40,5 @@ app.get(`${URL_BASE}/health`, (req, res) => res.json({ ok: true }))
 app.listen(port, () => {
     console.log(`Server on port ${port}`)
 })
-
-
-/*
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-    app.listen(port, () => {
-        console.log(`Server on port ${port}`)
-    })
-}
-*/
 
 export { app }
