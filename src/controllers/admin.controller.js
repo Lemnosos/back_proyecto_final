@@ -1,8 +1,8 @@
 import * as Enemigo from '../models/enemigo.model.js'
 import * as Usuario from '../models/user.model.js'
 import * as Combate from '../models/combate.model.js'
+import * as Personaje from '../models/personaje.model.js'
 import { encriptarContraseña } from '../utils/gestionarContraseñas.js'
-import { generarToken } from '../utils/gestionarTokens.js'
 
 /**
  * Obtiene todos los enemigos, o uno específico si se pasa `?id=X`.
@@ -61,6 +61,7 @@ export const updateEnemigos = async (req, res) => {
  */
 export const deleteEnemigos = async (req, res) => {
     try {
+        await Combate.deleteByEnemigo(req.body.id)
         const enemigo = await Enemigo.remove(req.body.id)
         if (!enemigo)
             return res.status(404).json({ ok: false, error: 'Enemigo no encontrado' })
@@ -125,6 +126,11 @@ export const setUsuarios = async (req, res) => {
  */
 export const deleteUsuarios = async (req, res) => {
     try {
+        const personaje = await Personaje.getByUsuarioId(req.params.id)
+        if (personaje) {
+            await Combate.deleteByPersonaje(personaje.id)
+            await Personaje.remove(personaje.id)
+        }
         const usuario = await Usuario.remove(req.params.id)
         if (!usuario)
             return res.status(404).json({ ok: false, error: 'Usuario no encontrado' })
@@ -148,24 +154,4 @@ export const getHistorialPeleas = async (req, res) => {
     }
 }
 
-/**
- * Crea un nuevo administrador. Devuelve token del admin actual, no del nuevo.
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- */
-export const newAdmin = async (req, res) => {
-    try {
-        const existe = await Usuario.getUserByEmail(req.body.email)
-        if (existe)
-            return res.status(403).json({ ok: false, error: 'El email ya esta asignado a otro usuario' })
 
-        req.body.password = await encriptarContraseña(req.body.password)
-        await Usuario.createUser({ ...req.body, rol: 'admin' })
-
-        const token = await generarToken({ id: req.id, rol: req.rol })
-
-        res.status(201).json({ ok: true, data: { msg: 'Administrador creado', token } })
-    } catch (error) {
-        res.status(500).json({ ok: false, error: 'Error al crear administrador' })
-    }
-}

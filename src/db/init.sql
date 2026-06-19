@@ -10,7 +10,7 @@ CREATE TABLE Usuario (
 
 CREATE TABLE Personaje (
   id            SERIAL PRIMARY KEY,
-  usuario_id    INT UNIQUE NOT NULL REFERENCES Usuario(id),
+  usuario_id    INT UNIQUE NOT NULL REFERENCES Usuario(id) ON DELETE CASCADE,
   nombre        VARCHAR(100) NOT NULL,
   vida          INT DEFAULT 100,
   ataque        INT DEFAULT 100,
@@ -32,8 +32,8 @@ CREATE TABLE Enemigo (
 
 CREATE TABLE Combate (
   id_pelea      SERIAL PRIMARY KEY,
-  id_personaje  INT NOT NULL REFERENCES Personaje(id),
-  id_enemigo    INT NOT NULL REFERENCES Enemigo(id),
+  id_personaje  INT NOT NULL REFERENCES Personaje(id) ON DELETE CASCADE,
+  id_enemigo    INT NOT NULL REFERENCES Enemigo(id) ON DELETE CASCADE,
   fecha         TIMESTAMP DEFAULT NOW(),
   resultado     VARCHAR(10) CHECK (resultado IN ('victoria', 'derrota')),
   turnos        INT NOT NULL

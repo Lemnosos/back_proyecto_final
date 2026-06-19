@@ -1,5 +1,5 @@
 import { pool } from '../utils/sqlConect.js';
-import { crearCombate, obtenerCombatesPorPersonaje, obtenerCombatePorId, obtenerTodosCombates } from '../utils/queries.js';
+import { crearCombate, obtenerCombatesPorPersonaje, obtenerCombatePorId, obtenerTodosCombates, borrarCombatesPorEnemigo, borrarCombatesPorPersonaje } from '../utils/queries.js';
 
 /**
  * Registra un nuevo combate.
@@ -74,6 +74,34 @@ export const getAll = async () => {
     } catch (error) {
         console.log(error);
         throw error;
+    } finally {
+        if (client) client.release();
+    }
+};
+
+/**
+ * Elimina todos los combates de un enemigo.
+ * @param {number} enemigoId - ID del enemigo
+ */
+export const deleteByEnemigo = async (enemigoId) => {
+    let client;
+    try {
+        client = await pool.connect();
+        await client.query(borrarCombatesPorEnemigo, [enemigoId]);
+    } finally {
+        if (client) client.release();
+    }
+};
+
+/**
+ * Elimina todos los combates de un personaje.
+ * @param {number} personajeId - ID del personaje
+ */
+export const deleteByPersonaje = async (personajeId) => {
+    let client;
+    try {
+        client = await pool.connect();
+        await client.query(borrarCombatesPorPersonaje, [personajeId]);
     } finally {
         if (client) client.release();
     }

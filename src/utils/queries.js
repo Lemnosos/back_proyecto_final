@@ -124,13 +124,22 @@ JOIN enemigo e ON c.id_enemigo = e.id
 where c.id_personaje=$1`;
 
 /** @type {string} Obtiene todos los combates ordenados por fecha descendente */
-export const obtenerTodosCombates = `SELECT *
-FROM combate
-ORDER BY fecha DESC`;
+export const obtenerTodosCombates = `SELECT c.*,p.nombre AS nombre_personaje, e.nombre AS nombre_enemigo
+FROM combate c
+JOIN personaje p on c.id_personaje = p.id
+JOIN enemigo e ON c.id_enemigo = e.id;`;
 /** @type {string} Busca combate por ID de pelea */
 export const obtenerCombatePorId = `SELECT *
 FROM combate
 WHERE id_pelea = $1`;
+/** @type {string} Elimina combates de un enemigo */
+export const borrarCombatesPorEnemigo = `DELETE
+FROM combate
+WHERE id_enemigo = $1`;
+/** @type {string} Elimina combates de un personaje */
+export const borrarCombatesPorPersonaje = `DELETE
+FROM combate
+WHERE id_personaje = $1`;
 /** @type {string} Elimina un combate por ID de pelea */
 export const borrarCombate = `DELETE
 FROM combate

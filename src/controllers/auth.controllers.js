@@ -10,40 +10,37 @@ const COOKIE_OPTS = {
 }
 
 /**
- * Controlador para registrar un nuevo usuario.
+ * Controlador para registrar un nuevo usuario o admin.
  * @param {import('express').Request} req
  * @param {import('express').Response} res
  */
 export const createUser = async (req, res) => {
     try {
-
-        let data = await getUserByEmail(req.body.email)
-
-        if (data != null)
-            return res.status(403).json({
-                ok: false,
-                error: 'El email ya esta asignado a otro usuario'
-            })
+        const existe = await getUserByEmail(req.body.email)
+        if (existe)
+            return res.status(403).json({ ok: false, error: 'El email ya esta asignado a otro usuario' })
 
         req.body.password = await encriptarContraseña(req.body.password)
+        const rol = req.body.rol || 'user'
+        const usuario = await createUserModel({ ...req.body, rol })
 
-        data = await createUserModel(req.body)
+        if (rol === 'admin') {
+            return res.status(201).json({
+                ok: true,
+                data: { msg: 'Administrador creado' }
+            })
+        }
 
-        const token = await generarToken({ id: data.id, rol: 'user' })
+        const token = await generarToken({ id: usuario.id, rol })
         res.cookie('token', token, COOKIE_OPTS)
 
         return res.status(200).json({
             ok: true,
-            data: { msg: 'Creando usuario', id: data.id, role: 'user' }
-        });
-
-    } catch (error) {
-        return res.status(500).json({
-            ok: false,
-            error: 'Fallo del servidor'
+            data: { msg: 'Usuario creado', id: usuario.id, role: rol }
         })
+    } catch (error) {
+        return res.status(500).json({ ok: false, error: 'Fallo del servidor' })
     }
-
 }
 
 /**

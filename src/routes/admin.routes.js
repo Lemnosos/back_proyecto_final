@@ -4,8 +4,7 @@ import {
     getEnemigos, setEnemigos, updateEnemigos, deleteEnemigos,
     getUsuarios, setUsuarios, deleteUsuarios,
     getHistorialPeleas,
-    getUsuariosById,
-    newAdmin
+    getUsuariosById
 } from '../controllers/admin.controller.js';
 
 import { validarToken } from '../middlewares/validateTokens.js';
@@ -53,11 +52,5 @@ router.delete('/usuarios/:id', [
 ], deleteUsuarios)
 
 router.get('/historial', getHistorialPeleas)
-router.post('/nuevoAdmin', [
-    body('email').isEmail().withMessage('Email inválido'),
-    body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
-    body('nombre').notEmpty().withMessage('El nombre es obligatorio'),
-    validateInputs
-], newAdmin)
 
 export { router }
