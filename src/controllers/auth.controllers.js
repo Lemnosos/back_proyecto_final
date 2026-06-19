@@ -4,7 +4,7 @@ import { getUserByEmail, createUser as createUserModel } from '../models/user.mo
 
 const COOKIE_OPTS = {
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'none',
     secure: true,
     maxAge: 1000 * 60 * 60 * 24
 }
