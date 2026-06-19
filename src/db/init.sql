@@ -1,7 +1,7 @@
 CREATE TABLE Usuario (
   id          SERIAL PRIMARY KEY,
   nombre      VARCHAR(100) NOT NULL,
-  apodo       VARCHAR(100),
+  apodo       VARCHAR(100) DEFAULT NULL,
   email       VARCHAR(255) UNIQUE NOT NULL,
   password    VARCHAR(255) NOT NULL,
   rol         VARCHAR(10) DEFAULT 'user',
@@ -27,7 +27,8 @@ CREATE TABLE Enemigo (
   ataque    INT DEFAULT 100,
   defensa   INT DEFAULT 100,
   velocidad INT DEFAULT 100,
-  tipo      VARCHAR(10) CHECK (tipo IN ('boss', 'normal'))
+  tipo      VARCHAR(10) CHECK (tipo IN ('boss', 'normal')),
+  url       TEXT NOT NULL
 );
 
 CREATE TABLE Combate (
@@ -36,5 +37,5 @@ CREATE TABLE Combate (
   id_enemigo    INT NOT NULL REFERENCES Enemigo(id) ON DELETE CASCADE,
   fecha         TIMESTAMP DEFAULT NOW(),
   resultado     VARCHAR(10) CHECK (resultado IN ('victoria', 'derrota')),
-  turnos        INT NOT NULL
+  turnos        INT DEFAULT 100
 );
