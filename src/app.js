@@ -6,7 +6,10 @@ import { capturarBody, morganLogger } from './utils/morganConfig.js'
 
 const URL_BASE = process.env.URL_BASE
 const puerto = process.env.PORT
-const origen = process.env.CORS_ORIGIN
+
+const origenes = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+    : '*'
 
 const app = express()
 const port = puerto || 3000
@@ -14,7 +17,7 @@ const port = puerto || 3000
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors({ origin: origen, credentials: true }))
+app.use(cors({ origin: origenes, credentials: true }))
 app.use(capturarBody)
 app.use(morganLogger)
 
