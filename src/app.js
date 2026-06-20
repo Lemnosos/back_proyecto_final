@@ -7,6 +7,7 @@ import { capturarBody, morganLogger } from './utils/morganConfig.js'
 const URL_BASE = process.env.URL_BASE
 const puerto = process.env.PORT
 const CORS_ORIGIN = process.env.CORS_ORIGIN
+
 const app = express()
 const port = puerto || 3000
 
