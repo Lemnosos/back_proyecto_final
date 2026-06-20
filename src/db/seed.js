@@ -37,12 +37,12 @@ async function seed() {
         console.log('  personajes insertados');
 
         await client.query(`
-            INSERT INTO enemigo (nombre, vida, ataque, defensa, velocidad, tipo) VALUES
-                ('Goblin',          50,  30,  20,  40,  'normal'),
-                ('Troll',           150, 60,  80,  20,  'normal'),
-                ('Dragón de Fuego', 300, 120, 100, 80, 'boss'),
-                ('Esqueleto',       60,  45,  30,  55,  'normal'),
-                ('Rey Demonio',     500, 150, 120, 60, 'boss');
+            INSERT INTO enemigo (nombre, vida, ataque, defensa, velocidad, tipo, url) VALUES
+                ('Goblin',          50,  30,  20,  40,  'normal', 'https://ejemplo.com/goblin.png'),
+                ('Troll',           150, 60,  80,  20,  'normal', 'https://ejemplo.com/troll.png'),
+                ('Dragón de Fuego', 300, 120, 100, 80, 'boss',   'https://ejemplo.com/dragon.png'),
+                ('Esqueleto',       60,  45,  30,  55,  'normal', 'https://ejemplo.com/esqueleto.png'),
+                ('Rey Demonio',     500, 150, 120, 60, 'boss',   'https://ejemplo.com/demonio.png');
         `);
 
         console.log('  enemigos insertados');

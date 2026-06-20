@@ -77,7 +77,7 @@ describe('Admin - POST /admin/enemigos', () => {
     const res = await request(app)
       .post(`${ENDPOINT}/enemigos`)
       .set('Cookie', `token=${token}`)
-      .send({ nombre: 'EnemigoTest', vida: 50, ataque: 30, defensa: 20, velocidad: 40, tipo: 'normal' })
+      .send({ nombre: 'EnemigoTest', vida: 50, ataque: 30, defensa: 20, velocidad: 40, tipo: 'normal', url: 'https://ejemplo.com/test.png' })
     expect(res.status).toBe(201)
     expect(res.body.ok).toBe(true)
   })

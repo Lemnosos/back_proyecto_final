@@ -49,7 +49,7 @@ export const create = async (body) => {
     try {
         client = await pool.connect();
         const data = await client.query(crearEnemigo, [
-            body.nombre, body.vida, body.ataque, body.defensa, body.velocidad, body.tipo
+            body.nombre, body.vida, body.ataque, body.defensa, body.velocidad, body.tipo, body.url
         ]);
         return data.rows[0];
     } catch (error) {

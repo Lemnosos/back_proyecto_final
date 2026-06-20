@@ -104,8 +104,8 @@ export const obtenerEnemigoPorId = `SELECT *
 FROM enemigo
 WHERE id = $1`;
 /** @type {string} Inserta un nuevo enemigo */
-export const crearEnemigo = `INSERT INTO enemigo (nombre, vida, ataque, defensa, velocidad, tipo)
-VALUES ($1, $2, $3, $4, $5, $6)
+export const crearEnemigo = `INSERT INTO enemigo (nombre, vida, ataque, defensa, velocidad, tipo, url)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *`;
 /** @type {string} Elimina un enemigo por ID */
 export const borrarEnemigo = `DELETE
