@@ -128,6 +128,18 @@ export const deleteUsuario = async (req, res) => {
 export const putResultadoPeleas = async (req, res) => {
     try {
         const combate = await Combate.create(req.body)
+
+        if (req.body.resultado === 'victoria') {
+            const enemigo = await Enemigo.getById(req.body.id_enemigo)
+            const personaje = await Personaje.getByUsuarioId(req.id)
+            if (enemigo && personaje) {
+                const xpGanada = Math.round(enemigo.vida * 0.5)
+                await Personaje.update(personaje.id, {
+                    experiencia: personaje.experiencia + xpGanada
+                })
+            }
+        }
+
         res.status(201).json({ ok: true, data: { msg: 'Resultado guardado', combate } })
     } catch (error) {
         res.status(500).json({ ok: false, error: 'Error al guardar resultado' })

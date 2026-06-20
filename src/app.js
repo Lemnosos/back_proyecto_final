@@ -6,19 +6,13 @@ import { capturarBody, morganLogger } from './utils/morganConfig.js'
 
 const URL_BASE = process.env.URL_BASE
 const puerto = process.env.PORT
-
+const CORS_ORIGIN = process.env.CORS_ORIGIN
 const app = express()
 const port = puerto || 3000
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
-
-// ─── CORS: descomentar según entorno ───────────────────
-// PRODUCCIÓN (Render):
-const CORS_ORIGIN = 'https://front-proyecto-final-4apg.onrender.com'
-// LOCAL (comentar lo de arriba, descomentar esto):
-// const CORS_ORIGIN = 'http://localhost:5173'
 
 app.use(cors({
     origin: CORS_ORIGIN,
