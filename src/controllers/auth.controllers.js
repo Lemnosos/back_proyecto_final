@@ -6,7 +6,7 @@ const COOKIE_OPTS = {
     httpOnly: true,
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 1000 * 60 * 60 * 24
+    maxAge: 1000 * 60 * 60
 }
 
 /**
@@ -103,17 +103,4 @@ export const renewToken = async (req, res) => {
     });
 }
 
-/**
- * Controlador para cerrar sesión.
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- */
-export const logoutUser = async (req, res) => {
 
-    res.clearCookie('token', { httpOnly: true, sameSite: 'lax', secure: false })
-
-    return res.status(200).json({
-        ok: true,
-        data: { msg: 'Sesión cerrada' }
-    });
-}

@@ -126,7 +126,7 @@ src/
 | POST   | `/public/new`     | Registrar nuevo usuario | No   |
 | POST   | `/public`         | Iniciar sesión          | No   |
 | GET    | `/public/renew`   | Renovar token           | JWT  |
-| POST   | `/public/logout`  | Cerrar sesión           | No   |
+
 
 ### Admin (`/api/v1/admin`)
 | Método | Ruta                  | Descripción                            |
@@ -166,9 +166,7 @@ src/
 ## Autenticación
 
 - **Registro:** `POST /api/v1/public/new` → guarda el JWT en una cookie httpOnly.
-- **Login:** `POST /api/v1/public` → guarda el JWT en una cookie httpOnly (válido 24h).
-- **Logout:** `POST /api/v1/public/logout` → elimina la cookie.
-- **Auto-refresh:** Cada petición autenticada renueva el token automáticamente (middleware `validarToken`). El frontend solo necesita enviar `credentials: 'include'` en fetch.
+- **Login:** `POST /api/v1/public` → guarda el JWT en una cookie httpOnly (válido 24h).- **Auto-refresh:** Cada petición autenticada renueva el token automáticamente (middleware `validarToken`). El frontend solo necesita enviar `credentials: 'include'` en fetch.
 - **Roles:** `admin` (gestión completa) y `user` (solo sus propios datos). Controlado por middleware `validarRol()`.
 
 ### Usuarios de prueba (seed)

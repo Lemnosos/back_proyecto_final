@@ -187,22 +187,6 @@ paths:
         400:
           $ref: '#/components/responses/Unauthorized'
 
-  /public/logout:
-    post:
-      tags: [Auth]
-      summary: Cerrar sesión
-      description: Elimina la cookie de autenticación.
-      responses:
-        200:
-          description: Sesión cerrada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ok:   { type: boolean }
-                  data: { type: object, properties: { msg: { type: string } } }
-
   # ─── ADMIN - ENEMIGOS ─────────────────────────────────────────
   /admin/enemigos:
     get:
