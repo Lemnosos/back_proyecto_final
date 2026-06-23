@@ -36,6 +36,6 @@ router.post('/', [
     validateInputs
 ], loginUser)
 
-router.get('/renew', validarToken, renewToken)
+router.get('/delete', deleteToken)
 
 export { router }

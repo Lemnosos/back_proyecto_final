@@ -92,14 +92,13 @@ export const loginUser = async (req, res) => {
  * @param {import('express').Request} req
  * @param {import('express').Response} res
  */
-export const renewToken = async (req, res) => {
+export const deleteToken = async (req, res) => {
 
-    const nuevoToken = await generarToken({ id: req.id, rol: req.rol })
-    res.cookie('token', nuevoToken, COOKIE_OPTS)
+    res.clearCookie('token', COOKIE_OPTS)
 
     return res.status(200).json({
         ok: true,
-        data: { msg: 'Token renovado', id: req.id, role: req.rol }
+        data: { msg: 'Token borrado' }
     });
 }
 
