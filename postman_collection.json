@@ -27,20 +27,7 @@
 					}
 				},
 				{
-					"name": "Iniciar sesión",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 200) {",
-									"    pm.collectionVariables.set('token', pm.response.json().data.token);",
-									"}"
-								]
-							}
-						}
-					],
-					"request": {
+					"name": "Iniciar sesión","request": {
 						"method": "POST",
 						"header": [
 							{ "key": "Content-Type", "value": "application/json" }
@@ -57,16 +44,14 @@
 					}
 				},
 				{
-					"name": "Renovar token",
+					"name": "Borrar token",
 					"request": {
 						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
-						],
+						"header": [],
 						"url": {
-							"raw": "{{base_url}}/public/renew",
+							"raw": "{{base_url}}/public/delete",
 							"host": ["{{base_url}}"],
-							"path": ["public", "renew"]
+							"path": ["public", "delete"]
 						}
 					}
 				}
@@ -76,20 +61,7 @@
 			"name": "Admin",
 			"item": [
 				{
-					"name": "Iniciar sesión como admin",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 200) {",
-									"    pm.collectionVariables.set('token', pm.response.json().data.token);",
-									"}"
-								]
-							}
-						}
-					],
-					"request": {
+					"name": "Iniciar sesión como admin","request": {
 						"method": "POST",
 						"header": [
 							{ "key": "Content-Type", "value": "application/json" }
@@ -112,9 +84,7 @@
 							"name": "Listar enemigos",
 							"request": {
 								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
+								"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 								"url": {
 									"raw": "{{base_url}}/admin/enemigos",
 									"host": ["{{base_url}}"],
@@ -126,9 +96,7 @@
 							"name": "Obtener enemigo por ID",
 							"request": {
 								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
+								"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 								"url": {
 									"raw": "{{base_url}}/admin/enemigos?id=1",
 									"host": ["{{base_url}}"],
@@ -143,13 +111,18 @@
 							"name": "Crear enemigo",
 							"request": {
 								"method": "POST",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
+								"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"nombre\": \"\",\n  \"vida\": \"\",\n  \"ataque\": \"\",\n  \"defensa\": \"\",\n  \"velocidad\": \"\",\n  \"tipo\": \"\"\n}"
+									"mode": "formdata",
+									"formdata": [
+										{ "key": "image", "type": "file", "src": "", "value": "" },
+										{ "key": "nombre", "type": "text", "value": "" },
+										{ "key": "vida", "type": "text", "value": "" },
+										{ "key": "ataque", "type": "text", "value": "" },
+										{ "key": "defensa", "type": "text", "value": "" },
+										{ "key": "velocidad", "type": "text", "value": "" },
+										{ "key": "tipo", "type": "text", "value": "" }
+									]
 								},
 								"url": {
 									"raw": "{{base_url}}/admin/enemigos",
@@ -162,10 +135,7 @@
 							"name": "Actualizar enemigo",
 							"request": {
 								"method": "PATCH",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
+								"header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "jwt={{token}}" }],
 								"body": {
 									"mode": "raw",
 									"raw": "{\n  \"id\": \"\",\n  \"nombre\": \"\",\n  \"vida\": \"\",\n  \"ataque\": \"\",\n  \"defensa\": \"\",\n  \"velocidad\": \"\",\n  \"tipo\": \"\"\n}"
@@ -181,9 +151,7 @@
 							"name": "Eliminar enemigo",
 							"request": {
 								"method": "DELETE",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
+								"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 								"body": {
 									"mode": "raw",
 									"raw": "{\n  \"id\": \"\"\n}"
@@ -204,9 +172,7 @@
 							"name": "Listar usuarios",
 							"request": {
 								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
+								"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 								"url": {
 									"raw": "{{base_url}}/admin/usuarios",
 									"host": ["{{base_url}}"],
@@ -218,9 +184,7 @@
 							"name": "Obtener usuario por ID",
 							"request": {
 								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
+								"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 								"url": {
 									"raw": "{{base_url}}/admin/usuarios/1",
 									"host": ["{{base_url}}"],
@@ -232,10 +196,7 @@
 							"name": "Actualizar usuario",
 							"request": {
 								"method": "PATCH",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
+								"header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "jwt={{token}}" }],
 								"body": {
 									"mode": "raw",
 									"raw": "{\n  \"nombre\": \"\",\n  \"apodo\": \"\",\n  \"email\": \"\",\n  \"password\": \"\"\n}"
@@ -251,9 +212,7 @@
 							"name": "Eliminar usuario",
 							"request": {
 								"method": "DELETE",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
+								"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 								"url": {
 									"raw": "{{base_url}}/admin/usuarios/1",
 									"host": ["{{base_url}}"],
@@ -267,9 +226,7 @@
 					"name": "Historial de peleas",
 					"request": {
 						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
-						],
+						"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 						"url": {
 							"raw": "{{base_url}}/admin/historial",
 							"host": ["{{base_url}}"],
@@ -281,16 +238,13 @@
 					"name": "Crear nuevo admin",
 					"request": {
 						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
+						"header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "jwt={{token}}" }],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"nombre\": \"\",\n  \"email\": \"\",\n  \"password\": \"\"\n}"
+							"raw": "{\n  \"nombre\": \"\",\n  \"email\": \"\",\n  \"password\": \"\",\n  \"rol\": \"admin\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/admin/nuevoAdmin",
+							"raw": "{{base_url}}/public/new",
 							"host": ["{{base_url}}"],
 							"path": ["admin", "nuevoAdmin"]
 						}
@@ -302,20 +256,7 @@
 			"name": "Users",
 			"item": [
 				{
-					"name": "Iniciar sesión como user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 200) {",
-									"    pm.collectionVariables.set('token', pm.response.json().data.token);",
-									"}"
-								]
-							}
-						}
-					],
-					"request": {
+					"name": "Iniciar sesión como user","request": {
 						"method": "POST",
 						"header": [
 							{ "key": "Content-Type", "value": "application/json" }
@@ -338,9 +279,7 @@
 							"name": "Obtener personaje",
 							"request": {
 								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
+								"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 								"url": {
 									"raw": "{{base_url}}/users/Personaje",
 									"host": ["{{base_url}}"],
@@ -352,10 +291,7 @@
 							"name": "Crear personaje",
 							"request": {
 								"method": "PUT",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
+								"header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "jwt={{token}}" }],
 								"body": {
 									"mode": "raw",
 									"raw": "{\n  \"nombre\": \"\",\n  \"vida\": \"\",\n  \"ataque\": \"\",\n  \"defensa\": \"\",\n  \"velocidad\": \"\",\n  \"experiencia\": \"\"\n}"
@@ -371,10 +307,7 @@
 							"name": "Actualizar personaje",
 							"request": {
 								"method": "PATCH",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
+								"header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "jwt={{token}}" }],
 								"body": {
 									"mode": "raw",
 									"raw": "{\n  \"id\": \"\",\n  \"nombre\": \"\",\n  \"vida\": \"\",\n  \"ataque\": \"\",\n  \"defensa\": \"\",\n  \"velocidad\": \"\",\n  \"experiencia\": \"\"\n}"
@@ -390,9 +323,7 @@
 							"name": "Eliminar personaje",
 							"request": {
 								"method": "DELETE",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
+								"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 								"body": {
 									"mode": "raw",
 									"raw": "{\n  \"id\": \"\"\n}"
@@ -413,9 +344,7 @@
 							"name": "Obtener mis datos",
 							"request": {
 								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
+								"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 								"url": {
 									"raw": "{{base_url}}/users/usuarios",
 									"host": ["{{base_url}}"],
@@ -427,10 +356,7 @@
 							"name": "Actualizar mis datos",
 							"request": {
 								"method": "PATCH",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
+								"header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "jwt={{token}}" }],
 								"body": {
 									"mode": "raw",
 									"raw": "{\n  \"nombre\": \"\",\n  \"apodo\": \"\",\n  \"email\": \"\",\n  \"password\": \"\"\n}"
@@ -446,9 +372,7 @@
 							"name": "Eliminar mi cuenta",
 							"request": {
 								"method": "DELETE",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
+								"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 								"url": {
 									"raw": "{{base_url}}/users/usuarios/2",
 									"host": ["{{base_url}}"],
@@ -465,9 +389,7 @@
 							"name": "Obtener historial",
 							"request": {
 								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
+								"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 								"url": {
 									"raw": "{{base_url}}/users/historial",
 									"host": ["{{base_url}}"],
@@ -479,10 +401,7 @@
 							"name": "Guardar resultado combate",
 							"request": {
 								"method": "PUT",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
+								"header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Cookie", "value": "jwt={{token}}" }],
 								"body": {
 									"mode": "raw",
 									"raw": "{\n  \"id_personaje\": \"\",\n  \"id_enemigo\": \"\",\n  \"resultado\": \"\",\n  \"turnos\": \"\"\n}"
@@ -500,9 +419,7 @@
 					"name": "Obtener enemigo aleatorio",
 					"request": {
 						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
-						],
+						"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
 						"url": {
 							"raw": "{{base_url}}/users/enemigo",
 							"host": ["{{base_url}}"],
@@ -520,7 +437,17 @@
 			"type": "string"
 		},
 		{
-			"key": "token",
+			"key": "CLOUDINARY_CLOUD_NAME",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "CLOUDINARY_API_KEY",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "CLOUDINARY_API_SECRET",
 			"value": "",
 			"type": "string"
 		}

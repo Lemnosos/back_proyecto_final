@@ -94,7 +94,11 @@ export const loginUser = async (req, res) => {
  */
 export const deleteToken = async (req, res) => {
 
-    res.clearCookie('token', COOKIE_OPTS)
+    res.clearCookie('token', {
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: process.env.NODE_ENV === 'production'
+    })
 
     return res.status(200).json({
         ok: true,

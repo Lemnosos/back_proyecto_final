@@ -59,23 +59,23 @@ describe('Auth - POST /public', () => {
   })
 })
 
-describe('Auth - GET /public/renew', () => {
+describe('Auth - GET /public/delete', () => {
 
   it('debería renovar token si es válido', async () => {
     const token = await getToken('admin')
 
     const res = await request(app)
-      .get(`${ENDPOINT}/renew`)
+      .get(`${ENDPOINT}/delete`)
       .set('Cookie', `token=${token}`)
 
     expect(res.status).toBe(200)
     expect(res.body.ok).toBe(true)
   })
 
-  it('debería dar 401 si no se envía token', async () => {
-    const res = await request(app).get(`${ENDPOINT}/renew`)
+  it('debería dar 200 aunque no haya token', async () => {
+    const res = await request(app).get(`${ENDPOINT}/delete`)
 
-    expect(res.status).toBe(400)
-    expect(res.body.ok).toBe(false)
+    expect(res.status).toBe(200)
+    expect(res.body.ok).toBe(true)
   })
 })

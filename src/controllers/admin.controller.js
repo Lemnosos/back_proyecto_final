@@ -3,6 +3,7 @@ import * as Usuario from '../models/user.model.js'
 import * as Combate from '../models/combate.model.js'
 import * as Personaje from '../models/personaje.model.js'
 import { encriptarContraseña } from '../utils/gestionarContraseñas.js'
+import { subirImagenCloudinary } from '../utils/cloudinary.js'
 
 /**
  * Obtiene todos los enemigos, o uno específico si se pasa `?id=X`.
@@ -31,7 +32,23 @@ export const getEnemigos = async (req, res) => {
  */
 export const setEnemigos = async (req, res) => {
     try {
-        const enemigo = await Enemigo.create(req.body)
+
+        const datos = req.body;
+        console.log(datos)
+        const imagen = req.file;
+        let cloudResult = null;
+
+        if (imagen) {
+            cloudResult = await subirImagenCloudinary(imagen, datos.nombre);
+            if (!cloudResult?.url) throw new Error('Error al subir la imagen a Cloudinary')
+        }
+
+        const enemigo = {
+            ...datos,
+            url: cloudResult.url
+        };
+
+        const respuesta = await Enemigo.create(enemigo)
         res.status(201).json({ ok: true, data: { msg: 'Enemigo creado', enemigo } })
     } catch (error) {
         res.status(500).json({ ok: false, error: 'Error al crear enemigo' })

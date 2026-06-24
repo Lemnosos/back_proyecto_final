@@ -10,11 +10,15 @@ import { validationResult } from 'express-validator';
 export const validateInputs = (req, res, next) => {
     const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
+    if (!errors.isEmpty() || req.errorImagen) {
+        const errores = errors.mapped();
+        if (req.errorImagen) {
+            errores[req.errorImagen.path] = req.errorImagen;
+        }
         return res.status(400).json({
             ok: false,
             error: "Error de validación",
-            errores: errors.mapped()
+            errores
         });
     }
 

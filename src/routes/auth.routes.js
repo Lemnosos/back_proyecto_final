@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import { createUser, loginUser, renewToken } from '../controllers/auth.controllers.js';
+import { createUser, loginUser, deleteToken } from '../controllers/auth.controllers.js';
 import { validarToken } from '../middlewares/validateTokens.js';
 import { validateInputs } from '../middlewares/validateImputs.js';
 

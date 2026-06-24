@@ -1,5 +1,9 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { app, request, URL_BASE, getToken } from './setup.js'
+
+vi.mock('../utils/cloudinary.js', () => ({
+  subirImagenCloudinary: vi.fn(() => Promise.resolve({ url: 'https://ejemplo.com/test.png' }))
+}))
 
 const ENDPOINT = `${URL_BASE}/admin`
 
@@ -77,7 +81,13 @@ describe('Admin - POST /admin/enemigos', () => {
     const res = await request(app)
       .post(`${ENDPOINT}/enemigos`)
       .set('Cookie', `token=${token}`)
-      .send({ nombre: 'EnemigoTest', vida: 50, ataque: 30, defensa: 20, velocidad: 40, tipo: 'normal', url: 'https://ejemplo.com/test.png' })
+      .attach('image', Buffer.from('fake-image-content'), 'test.png')
+      .field('nombre', 'EnemigoTest')
+      .field('vida', '50')
+      .field('ataque', '30')
+      .field('defensa', '20')
+      .field('velocidad', '40')
+      .field('tipo', 'normal')
     expect(res.status).toBe(201)
     expect(res.body.ok).toBe(true)
   })

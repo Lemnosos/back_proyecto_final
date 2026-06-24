@@ -125,14 +125,14 @@ src/
 | ------ | ----------------- | ----------------------- | ---- |
 | POST   | `/public/new`     | Registrar nuevo usuario | No   |
 | POST   | `/public`         | Iniciar sesión          | No   |
-| GET    | `/public/renew`   | Renovar token           | JWT  |
+| GET    | `/public/delete`  | Borrar cookie (token)   | No   |
 
 
 ### Admin (`/api/v1/admin`)
 | Método | Ruta                  | Descripción                            |
 | ------ | --------------------- | -------------------------------------- |
 | GET    | `/admin/enemigos`     | Listar enemigos (usa `?id=X` para uno) |
-| POST   | `/admin/enemigos`     | Crear enemigo                          |
+| POST   | `/admin/enemigos`     | Crear enemigo (multipart + imagen)       |
 | PATCH  | `/admin/enemigos`     | Actualizar enemigo                     |
 | DELETE | `/admin/enemigos`     | Eliminar enemigo                       |
 | GET    | `/admin/usuarios`     | Listar usuarios                        |
@@ -187,7 +187,7 @@ npm test
 
 Ejecuta Vitest con Supertest contra la base de datos real (PostgreSQL debe estar corriendo).
 
-- `auth.test.js` — 6 tests (registro, login, renew)
+- `auth.test.js` — 6 tests (registro, login, delete)
 - `admin.test.js` — 13 tests (CRUD enemigos, usuarios, permisos)
 - `user.test.js` — 8 tests (personaje, perfil, historial, enemigo)
 - **Total:** 27 tests
@@ -202,4 +202,4 @@ La documentación OpenAPI 3.0 está disponible en:
 http://localhost:3000/
 ```
 
-Incluye todos los endpoints, esquemas de datos, códigos de respuesta y el esquema de seguridad JWT. Es la fuente de verdad para el frontend.
+Incluye todos los endpoints, esquemas de datos, códigos de respuesta y el esquema de seguridad por cookie httpOnly. Es la fuente de verdad para el frontend.

@@ -4,8 +4,8 @@ info:
   description: >
     API del proyecto final. Los endpoints de Admin requieren rol `admin`
     y los de Users requieren rol `user`. El token se obtiene via login
-    y se envía como `Authorization: Bearer <token>`.
-    Por cada request autenticado se devuelve un nuevo token en el header `x-token`.
+    y se envía automáticamente como cookie httpOnly.
+    Por cada request autenticado se renueva la cookie automáticamente.
   version: 1.0.0
 
 servers:
@@ -14,10 +14,10 @@ servers:
 
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
 
   schemas:
     Usuario:
@@ -53,6 +53,7 @@ components:
         defensa:   { type: integer, example: 20 }
         velocidad: { type: integer, example: 40 }
         tipo:      { type: string, enum: [boss, normal], example: "normal" }
+        url:       { type: string, example: "https://res.cloudinary.com/.../test.png" }
 
     Combate:
       type: object
@@ -83,11 +84,11 @@ components:
         ok:   { type: boolean, example: true }
         data: { type: object, properties: { msg: { type: string } } }
 
-    ExitoToken:
+    ExitoMsgSimple:
       type: object
       properties:
         ok:   { type: boolean, example: true }
-        data: { type: object, properties: { msg: { type: string }, token: { type: string } } }
+        data: { type: object, properties: { msg: { type: string, example: "Operación exitosa" } } }
 
   responses:
     NotFound:
@@ -173,26 +174,23 @@ paths:
         500:
           $ref: '#/components/responses/ServerError'
 
-  /public/renew:
+  /public/delete:
     get:
       tags: [Auth]
-      summary: Renovar token JWT
-      security: [{ bearerAuth: [] }]
+      summary: Borrar token (cookie)
       responses:
         200:
-          description: Token renovado
+          description: Token borrado
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/ExitoToken' }
-        400:
-          $ref: '#/components/responses/Unauthorized'
+              schema: { $ref: '#/components/schemas/ExitoMsgSimple' }
 
   # ─── ADMIN - ENEMIGOS ─────────────────────────────────────────
   /admin/enemigos:
     get:
       tags: [Admin - Enemigos]
       summary: Listar enemigos (con ?id=X opcional para obtener uno)
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       parameters:
         - in: query
           name: id
@@ -224,14 +222,14 @@ paths:
     post:
       tags: [Admin - Enemigos]
       summary: Crear un nuevo enemigo
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
-              required: [nombre, vida, ataque, defensa, velocidad, tipo]
+              required: [nombre, vida, ataque, defensa, velocidad, tipo, image]
               properties:
                 nombre:    { type: string, example: "Nuevo Enemigo" }
                 vida:      { type: integer, example: 100 }
@@ -239,9 +237,22 @@ paths:
                 defensa:   { type: integer, example: 40 }
                 velocidad: { type: integer, example: 30 }
                 tipo:      { type: string, enum: [boss, normal], example: "normal" }
+                image:     { type: string, format: binary, description: "Imagen del enemigo (jpg, png, gif, webp, max 5MB)" }
       responses:
         201:
           description: Enemigo creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+                  data:
+                    type: object
+                    properties:
+                      msg: { type: string, example: "Enemigo creado" }
+                      enemigo:
+                        $ref: '#/components/schemas/Enemigo'
         400:
           $ref: '#/components/responses/Unauthorized'
         403:
@@ -252,7 +263,7 @@ paths:
     patch:
       tags: [Admin - Enemigos]
       summary: Actualizar un enemigo
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       requestBody:
         required: true
         content:
@@ -288,7 +299,7 @@ paths:
     delete:
       tags: [Admin - Enemigos]
       summary: Eliminar un enemigo
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       requestBody:
         required: true
         content:
@@ -316,7 +327,7 @@ paths:
     get:
       tags: [Admin - Usuarios]
       summary: Listar todos los usuarios
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       responses:
         200:
           description: Lista de usuarios
@@ -336,7 +347,7 @@ paths:
     get:
       tags: [Admin - Usuarios]
       summary: Obtener un usuario por ID
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/userIdPath'
       responses:
@@ -359,7 +370,7 @@ paths:
     patch:
       tags: [Admin - Usuarios]
       summary: Actualizar un usuario
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/userIdPath'
       requestBody:
@@ -385,7 +396,7 @@ paths:
     delete:
       tags: [Admin - Usuarios]
       summary: Eliminar un usuario
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/userIdPath'
       responses:
@@ -403,7 +414,7 @@ paths:
     get:
       tags: [Admin - Historial]
       summary: Obtener historial completo de peleas
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       responses:
         200:
           description: Lista de combates
@@ -424,7 +435,7 @@ paths:
     get:
       tags: [User - Personaje]
       summary: Obtener el personaje del usuario autenticado
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       responses:
         200:
           description: Datos del personaje
@@ -445,7 +456,7 @@ paths:
     put:
       tags: [User - Personaje]
       summary: Crear un personaje para el usuario autenticado (1 por usuario)
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       requestBody:
         required: true
         content:
@@ -478,7 +489,7 @@ paths:
     patch:
       tags: [User - Personaje]
       summary: Actualizar personaje
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       requestBody:
         required: true
         content:
@@ -507,7 +518,7 @@ paths:
     delete:
       tags: [User - Personaje]
       summary: Eliminar personaje
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       requestBody:
         required: true
         content:
@@ -532,7 +543,7 @@ paths:
     get:
       tags: [User - Usuario]
       summary: Obtener los datos propios del usuario autenticado
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       responses:
         200:
           description: Datos del usuario (sin contraseña)
@@ -552,7 +563,7 @@ paths:
     patch:
       tags: [User - Usuario]
       summary: Actualizar los datos del usuario
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/userIdPath'
       requestBody:
@@ -578,7 +589,7 @@ paths:
     delete:
       tags: [User - Usuario]
       summary: Eliminar el usuario
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/userIdPath'
       responses:
@@ -625,7 +636,7 @@ paths:
     get:
       tags: [User - Combates]
       summary: Obtener el historial de combates del personaje del usuario
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       responses:
         200:
           description: Lista de combates del personaje
@@ -646,7 +657,7 @@ paths:
     put:
       tags: [User - Combates]
       summary: Guardar el resultado de un combate
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       requestBody:
         required: true
         content:
@@ -674,7 +685,7 @@ paths:
     get:
       tags: [User - Combates]
       summary: Obtener un enemigo aleatorio para combatir
-      security: [{ bearerAuth: [] }]
+      security: [{ cookieAuth: [] }]
       responses:
         200:
           description: Enemigo aleatorio
