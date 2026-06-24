@@ -98,7 +98,7 @@ RETURNING *`;
 /** @type {string} Obtiene todos los enemigos ordenados por ID */
 export const obtenerTodosEnemigos = `SELECT *
 FROM enemigo
-ORDER BY id ASC`;
+ORDER BY VIDA ASC`;
 /** @type {string} Busca enemigo por ID */
 export const obtenerEnemigoPorId = `SELECT *
 FROM enemigo
