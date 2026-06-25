@@ -16,16 +16,16 @@ const router = express.Router();
 
 router.use(validarToken, validarRol('user'));
 
-router.get('/Personaje', getPersonaje)
-router.put('/Personaje', [
+router.get('/personaje', getPersonaje)
+router.put('/personaje', [
     body('nombre').notEmpty().withMessage('El nombre es obligatorio'),
     validateInputs
 ], setPersonaje)
-router.patch('/Personaje', [
+router.patch('/personaje', [
     body('id').isInt().withMessage('El id debe ser un número entero'),
     validateInputs
 ], updatePersonaje)
-router.delete('/Personaje', [
+router.delete('/personaje', [
     body('id').isInt().withMessage('El id debe ser un número entero'),
     validateInputs
 ], deletePersonaje)
@@ -42,6 +42,7 @@ router.delete('/usuarios/:id', [
 
 router.get('/historial', getResultadoPeleas)
 router.put('/historial', putResultadoPeleas)
+
 router.get('/enemigo', getEnemigo)
 
 export { router }

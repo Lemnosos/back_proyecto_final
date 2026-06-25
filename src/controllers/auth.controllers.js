@@ -57,14 +57,14 @@ export const loginUser = async (req, res) => {
         if (!data)
             return res.status(403).json({
                 ok: false,
-                error: 'Credenciales inválidas'
+                error: 'Email o contraseña incorrectos'
             });
 
         if (!compararContraseña(password, data.password)) {
 
             return res.status(403).json({
                 ok: false,
-                error: 'Credenciales inválidas'
+                error: 'Email o contraseña incorrectos'
             });
 
         }

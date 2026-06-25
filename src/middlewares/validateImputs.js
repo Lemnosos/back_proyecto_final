@@ -17,7 +17,7 @@ export const validateInputs = (req, res, next) => {
         }
         return res.status(400).json({
             ok: false,
-            error: "Error de validación",
+            error: "Los datos proporcionados son erróneos",
             errores
         });
     }
