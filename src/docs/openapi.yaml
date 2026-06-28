@@ -84,6 +84,32 @@ components:
         ok:   { type: boolean, example: true }
         data: { type: object, properties: { msg: { type: string } } }
 
+    Estadisticas:
+      type: object
+      properties:
+        total_combates:     { type: integer, example: 2000 }
+        victorias:           { type: integer, example: 1430 }
+        derrotas:            { type: integer, example: 570 }
+        media_turnos:        { type: number, format: float, example: 6.2 }
+        total_usuarios:      { type: integer, example: 3 }
+        total_enemigos:      { type: integer, example: 7 }
+        enemigos_mas_peleados:
+          type: array
+          items:
+            type: object
+            properties:
+              nombre:    { type: string, example: "Goblin" }
+              total:     { type: integer, example: 320 }
+              victorias: { type: integer, example: 180 }
+              derrotas:  { type: integer, example: 140 }
+        combates_por_personaje:
+          type: array
+          items:
+            type: object
+            properties:
+              nombre: { type: string, example: "Lemnos" }
+              total:  { type: integer, example: 679 }
+
     ExitoMsgSimple:
       type: object
       properties:
@@ -425,6 +451,27 @@ paths:
                 properties:
                   ok:   { type: boolean }
                   data: { type: object, properties: { combates: { type: array, items: { $ref: '#/components/schemas/Combate' } } } }
+        400:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+
+  # ─── ADMIN - ESTADÍSTICAS ────────────────────────────────────
+  /admin/estadisticas:
+    get:
+      tags: [Admin - Estadísticas]
+      summary: Estadísticas globales, victorias/derrotas, top enemigos, combates por personaje
+      security: [{ cookieAuth: [] }]
+      responses:
+        200:
+          description: Estadísticas globales
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:   { type: boolean }
+                  data: { $ref: '#/components/schemas/Estadisticas' }
         400:
           $ref: '#/components/responses/Unauthorized'
         403:

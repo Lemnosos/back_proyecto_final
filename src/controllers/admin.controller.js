@@ -171,4 +171,19 @@ export const getHistorialPeleas = async (req, res) => {
     }
 }
 
+/**
+ * Obtiene estadísticas globales de combates.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+export const getEstadisticas = async (req, res) => {
+    try {
+        const data = await Combate.getEstadisticas()
+        res.status(200).json({ ok: true, data })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ ok: false, error: 'Error al obtener estadísticas' })
+    }
+}
+
 

@@ -4,7 +4,7 @@ import { param, body, query } from 'express-validator';
 import {
     getEnemigos, setEnemigos, updateEnemigos, deleteEnemigos,
     getUsuarios, setUsuarios, deleteUsuarios,
-    getHistorialPeleas,
+    getHistorialPeleas, getEstadisticas,
     getUsuariosById
 } from '../controllers/admin.controller.js';
 
@@ -61,5 +61,6 @@ router.delete('/usuarios/:id', [
 ], deleteUsuarios)
 
 router.get('/historial', getHistorialPeleas)
+router.get('/estadisticas', getEstadisticas)
 
 export { router }

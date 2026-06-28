@@ -145,3 +145,32 @@ export const borrarCombate = `DELETE
 FROM combate
 WHERE id_pelea = $1
 RETURNING *`;
+
+export const estadisticasGenerales = `
+SELECT
+    COUNT(*)::int AS total_combates,
+    COUNT(*) FILTER (WHERE resultado = 'victoria')::int AS victorias,
+    COUNT(*) FILTER (WHERE resultado = 'derrota')::int AS derrotas,
+    ROUND(AVG(turnos), 1)::float AS media_turnos
+FROM combate`;
+
+export const enemigosMasPeleados = `
+SELECT e.nombre,
+       COUNT(*)::int AS total,
+       COUNT(*) FILTER (WHERE c.resultado = 'victoria')::int AS victorias,
+       COUNT(*) FILTER (WHERE c.resultado = 'derrota')::int AS derrotas
+FROM combate c
+JOIN enemigo e ON c.id_enemigo = e.id
+GROUP BY e.id, e.nombre
+ORDER BY total DESC
+LIMIT 7`;
+
+export const combatesPorPersonaje = `
+SELECT p.nombre, COUNT(*)::int AS total
+FROM combate c
+JOIN personaje p ON c.id_personaje = p.id
+GROUP BY p.id, p.nombre
+ORDER BY total DESC`;
+
+export const totalUsuarios = `SELECT COUNT(*)::int AS total FROM usuario`;
+export const totalEnemigos = `SELECT COUNT(*)::int AS total FROM enemigo`;

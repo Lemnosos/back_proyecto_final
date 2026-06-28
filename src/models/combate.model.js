@@ -1,5 +1,5 @@
 import { pool } from '../utils/sqlConect.js';
-import { crearCombate, obtenerCombatesPorPersonaje, obtenerCombatePorId, obtenerTodosCombates, borrarCombatesPorEnemigo, borrarCombatesPorPersonaje } from '../utils/queries.js';
+import { crearCombate, obtenerCombatesPorPersonaje, obtenerCombatePorId, obtenerTodosCombates, borrarCombatesPorEnemigo, borrarCombatesPorPersonaje, borrarCombate, estadisticasGenerales, enemigosMasPeleados, combatesPorPersonaje, totalUsuarios, totalEnemigos } from '../utils/queries.js';
 
 /**
  * Registra un nuevo combate.
@@ -102,6 +102,36 @@ export const deleteByPersonaje = async (personajeId) => {
     try {
         client = await pool.connect();
         await client.query(borrarCombatesPorPersonaje, [personajeId]);
+    } finally {
+        if (client) client.release();
+    }
+};
+
+/**
+ * Obtiene estadísticas globales de combates.
+ * @returns {Promise<Object>} Estadísticas agregadas
+ */
+export const getEstadisticas = async () => {
+    let client;
+    try {
+        client = await pool.connect();
+        const [generales, enemigos, personajes, usuarios, enemigosTotal] = await Promise.all([
+            client.query(estadisticasGenerales),
+            client.query(enemigosMasPeleados),
+            client.query(combatesPorPersonaje),
+            client.query(totalUsuarios),
+            client.query(totalEnemigos)
+        ]);
+        return {
+            ...generales.rows[0],
+            total_usuarios: usuarios.rows[0].total,
+            total_enemigos: enemigosTotal.rows[0].total,
+            enemigos_mas_peleados: enemigos.rows,
+            combates_por_personaje: personajes.rows
+        };
+    } catch (error) {
+        console.log(error);
+        throw error;
     } finally {
         if (client) client.release();
     }

@@ -28,7 +28,10 @@ CREATE TABLE Enemigo (
   defensa   INT DEFAULT 100,
   velocidad INT DEFAULT 100,
   tipo      VARCHAR(10) CHECK (tipo IN ('boss', 'normal')),
-  url       TEXT NOT NULL
+  url       TEXT NOT NULL,
+  victorias INT DEFAULT 0,
+  derrotas  INT DEFAULT 0,
+  created_at    TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE Combate (

@@ -230,6 +230,18 @@
 					}
 				},
 				{
+					"name": "Estadísticas",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Cookie", "value": "jwt={{token}}" }],
+						"url": {
+							"raw": "{{base_url}}/admin/estadisticas",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "estadisticas"]
+						}
+					}
+				},
+				{
 					"name": "Crear nuevo admin",
 					"request": {
 						"method": "POST",

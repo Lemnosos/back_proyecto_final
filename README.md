@@ -140,6 +140,7 @@ src/
 | PATCH  | `/admin/usuarios/:id` | Actualizar usuario                     |
 | DELETE | `/admin/usuarios/:id` | Eliminar usuario                       |
 | GET    | `/admin/historial`    | Historial completo de peleas           |
+| GET    | `/admin/estadisticas` | Estadísticas globales (combates, victorias, media turnos, top enemigos) |
 
 ### User (`/api/v1/users`)
 | Método | Ruta                  | Descripción                     |
@@ -188,9 +189,9 @@ npm test
 Ejecuta Vitest con Supertest contra la base de datos real (PostgreSQL debe estar corriendo).
 
 - `auth.test.js` — 6 tests (registro, login, delete)
-- `admin.test.js` — 13 tests (CRUD enemigos, usuarios, permisos)
+- `admin.test.js` — 14 tests (CRUD enemigos, usuarios, permisos, estadísticas)
 - `user.test.js` — 8 tests (personaje, perfil, historial, enemigo)
-- **Total:** 27 tests
+- **Total:** 28 tests
 
 ---
 

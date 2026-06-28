@@ -150,3 +150,35 @@ describe('Admin - GET /admin/usuarios/:id', () => {
     expect(res.body.ok).toBe(false)
   })
 })
+
+describe('Admin - GET /admin/estadisticas', () => {
+
+  it('debería dar 401 sin token', async () => {
+    const res = await request(app).get(`${ENDPOINT}/estadisticas`)
+    expect(res.status).toBe(400)
+    expect(res.body.ok).toBe(false)
+  })
+
+  it('debería dar 403 con token de user', async () => {
+    const token = await getToken('user')
+    const res = await request(app)
+      .get(`${ENDPOINT}/estadisticas`)
+      .set('Cookie', `token=${token}`)
+    expect(res.status).toBe(403)
+    expect(res.body.ok).toBe(false)
+  })
+
+  it('debería devolver estadísticas correctamente', async () => {
+    const token = await getToken('admin')
+    const res = await request(app)
+      .get(`${ENDPOINT}/estadisticas`)
+      .set('Cookie', `token=${token}`)
+    expect(res.status).toBe(200)
+    expect(res.body.ok).toBe(true)
+    expect(res.body.data).toHaveProperty('generales')
+    expect(res.body.data).toHaveProperty('enemigosMasPeleados')
+    expect(res.body.data).toHaveProperty('combatesPorPersonaje')
+    expect(res.body.data).toHaveProperty('totalUsuarios')
+    expect(res.body.data).toHaveProperty('totalEnemigos')
+  })
+})
